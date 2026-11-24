@@ -62,4 +62,54 @@ class MemberJpaRepositoryTest {
         long deletedCount = memberJpaRepository.count();
         assertEquals(0, deletedCount);
     }
+
+    @Test
+    public void testNamedQuery() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberJpaRepository.save(member1);
+        memberJpaRepository.save(member2);
+
+        List<Member> result = memberJpaRepository.findByUsername("AAA");
+        Member findMember = result.getFirst();
+        assertEquals(member1, findMember);
+    }
+
+    @Test
+    public void paging() {
+        // given
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 10));
+        memberJpaRepository.save(new Member("member3", 10));
+        memberJpaRepository.save(new Member("member4", 10));
+        memberJpaRepository.save(new Member("member5", 10));
+
+        int age = 10;
+        int offet = 1;
+        int limit = 3;
+
+        // when
+        List<Member> members = memberJpaRepository.findByPage(age, offet, limit);
+        long totalCount = memberJpaRepository.totalCount(age);
+
+        // then
+        assertEquals(3, members.size());
+        assertEquals(5, totalCount);
+    }
+
+    @Test
+    public void bulkUpdate() {
+        // given
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 19));
+        memberJpaRepository.save(new Member("member3", 20));
+        memberJpaRepository.save(new Member("member4", 21));
+        memberJpaRepository.save(new Member("member5", 40));
+
+        // when
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+        // then
+        assertEquals(3, resultCount);
+    }
 }
