@@ -240,28 +240,43 @@ class MemberRepositoryTest {
 
         Member member1 = new Member("member1", 20, teamA);
         Member member2 = new Member("member2", 20, teamB);
+        memberRepository.save(new Member("member3", 30, teamA));
+        memberRepository.save(new Member("member4", 40, teamB));
         memberRepository.save(member1);
         memberRepository.save(member2);
 
         em.flush();
         em.clear();
 
-        // when N + 1
-        List<Member> members = memberRepository.findAll();
+        // 1. 일반 조회
+        System.out.println("===== 일반 조회 =====");
 
-        for (Member member : members) {
-            System.out.println("member.getUsername() = " + member.getUsername());
-            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+        List<Member> lazyMembers = memberRepository.findAllLazy();
+
+        for (Member member : lazyMembers) {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
 
         em.flush();
         em.clear();
-        System.out.println("======================");
-        List<Member> memberFetchJoin = memberRepository.findMemberFetchJoin();
-        for (Member member : memberFetchJoin) {
-            System.out.println("member.getUsername() = " + member.getUsername());
-            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+
+        // when N + 1
+        // 2. EntityGraph
+        System.out.println("===== EntityGraph =====");
+        List<Member> graphMembers = memberRepository.findAll();
+
+        for (Member member : graphMembers) {
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+        em.flush();
+        em.clear();
+
+        // 3. Fetch Join
+        System.out.println("===== Fetch Join =====");
+
+        List<Member> fetchMembers = memberRepository.findMemberFetchJoin();
+        for (Member member : fetchMembers) {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
     }

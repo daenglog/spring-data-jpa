@@ -57,6 +57,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query("select m from Member m left join fetch m.team")
     List<Member> findMemberFetchJoin();
 
+    @Query("select m from Member m")
+    List<Member> findAllLazy();
+
     @Override
     @EntityGraph(attributePaths = {"team"})
     @NonNull
